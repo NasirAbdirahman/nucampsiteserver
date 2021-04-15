@@ -11,6 +11,10 @@ var logger = require('morgan');
 //Routers
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+const campsiteRouter = require('./routes/campsiteRouter');
+const promotionRouter = require('./routes/promotionRouter');
+const partnerRouter = require('./routes/partnerRouter');
+
 
 //Creates a New express Application, under the name 'app'
 var app = express();
@@ -19,12 +23,17 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-//Methods equipe the app with all the middleware
+//App.use Methods equipe the app with all the middleware
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));//Built in middleware that serves static files
+
+//App using the Routers
+app.use('/campsites', campsiteRouter);
+app.use('/promotions', promotionRouter);
+app.use('/partners', partnerRouter);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
