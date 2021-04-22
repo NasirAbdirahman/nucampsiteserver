@@ -1,4 +1,4 @@
-//* Main Code for the Server*//
+//* Main Code for the Express Server*//
 
 var createError = require('http-errors');
 var express = require('express');
@@ -15,6 +15,20 @@ const campsiteRouter = require('./routes/campsiteRouter');
 const promotionRouter = require('./routes/promotionRouter');
 const partnerRouter = require('./routes/partnerRouter');
 
+//Connecting to The MongoDb Server//
+const mongoose = require('mongoose');
+//Url to MongoDb Server
+const url = 'mongodb://localhost:27017/nucampsite';
+const connect = mongoose.connect(url, {
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useNewUrlParser: true, 
+    useUnifiedTopology: true
+});
+
+connect.then(() => console.log('Connected correctly to server'), 
+    err => console.log(err)
+);
 
 //Creates a New express Application, under the name 'app'
 var app = express();
@@ -23,7 +37,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-//App.use Methods equipe the app with all the middleware
+//App.use Methods equips the app with all the middleware
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -31,12 +45,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));//Built in middleware that serves static files
 
 //App using the Routers
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+
 app.use('/campsites', campsiteRouter);
 app.use('/promotions', promotionRouter);
 app.use('/partners', partnerRouter);
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
