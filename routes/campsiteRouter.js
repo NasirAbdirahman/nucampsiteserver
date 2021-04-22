@@ -41,7 +41,7 @@ campsiteRouter.route('/')
 
 
 
-//New Rout parameter created for campsiteId endpoints
+//New Route parameter created for campsiteId endpoints
 campsiteRouter.route('/:campsiteId')
 .get((req, res, next) => {
     Campsite.findById(req.params.campsiteId)
@@ -78,10 +78,10 @@ campsiteRouter.route('/:campsiteId')
 });
 
 
-//New Router parameter created for campsiteId/Comments
+//New Route parameter created for campsiteId/Comments
 campsiteRouter.route('/:campsiteId/comments')
 .get((req, res, next) => {
-    Campsite.findById(req.params.campsiteId)
+    Campsite.findById(req.params.campsiteId)//Only returns the comment associated with singular campsite
     .then(campsite => {
         if (campsite) {
             res.statusCode = 200;
@@ -99,8 +99,8 @@ campsiteRouter.route('/:campsiteId/comments')
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
         if (campsite) {
-            campsite.comments.push(req.body);
-            campsite.save()
+            campsite.comments.push(req.body);//Only changes the comment array in app memory
+            campsite.save()//Submits change to MongoDb DB, Returns a response
             .then(campsite => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
@@ -123,7 +123,7 @@ campsiteRouter.route('/:campsiteId/comments')
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
         if (campsite) {
-            for (let i = (campsite.comments.length-1); i >= 0; i--) {
+            for (let i = (campsite.comments.length-1); i >= 0; i--) {//Iterates thru every comment in the campsiteID
                 campsite.comments.id(campsite.comments[i]._id).remove();
             }
             campsite.save()
@@ -143,12 +143,12 @@ campsiteRouter.route('/:campsiteId/comments')
 });
 
 
-//New Router parameter created for campsiteId/comments/:commentId
+//New Router parameter created for requests for a specific comment of a specific campsite -- campsiteId/comments/:commentId
 campsiteRouter.route('/:campsiteId/comments/:commentId')
 .get((req, res, next) => {
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
-        if (campsite && campsite.comments.id(req.params.commentId)) {
+        if (campsite && campsite.comments.id(req.params.commentId)) {//Checks campsite & CommentID
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.json(campsite.comments.id(req.params.commentId));
@@ -171,7 +171,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
 .put((req, res, next) => {
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
-        if (campsite && campsite.comments.id(req.params.commentId)) {
+        if (campsite && campsite.comments.id(req.params.commentId)) { //Only allow updates of specific fields--rating, text
             if (req.body.rating) {
                 campsite.comments.id(req.params.commentId).rating = req.body.rating;
             }
