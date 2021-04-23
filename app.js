@@ -7,6 +7,8 @@ var path = require('path');
 // Middleware Libraries
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const session = require('express-session');
+const FileStore = require('session-file-store')(session);//Immediately calls the sesision
 
 //Routers
 var indexRouter = require('./routes/index');
@@ -41,12 +43,21 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser('12345-67890-09876-54321'));//Random secutiry key passed in
+//app.use(cookieParser('12345-67890-09876-54321'));//Random secutiry key passed in
+app.use(session({
+  name: 'session-id',//Doesnt matter what you put here
+  secret: '12345-67890-09876-54321',
+  saveUninitialized: false,//new session created but no updates, it wont get saved b/c it was an empty session, so no cookie sent to client
+  resave: false,//once session created/updated and saved, will continue to be resaved everytime a req. is made for that session, keeps session marked as 'active'
+  store: new FileStore()//creates new filestore as object,we can use to save our session info to servers harddisk, instead of just in running apps. memory
+}));
 
 //Authentication Added here-b/c this is first of middleware Fn that send things back to client
 //So users must authenticate before they access data from the server
 function auth(req, res, next) {
-  if (!req.signedCookies.user) {
+  console.log(req.session);
+
+  if (!req.session.user) {
       const authHeader = req.headers.authorization;
       if (!authHeader) {
           const err = new Error('You are not authenticated!');
@@ -59,7 +70,7 @@ function auth(req, res, next) {
       const user = auth[0];
       const pass = auth[1];
       if (user === 'admin' && pass === 'password') {
-          res.cookie('user', 'admin', {signed: true});//Cookie setup-creates a new cookie, 1st arg(name=user), 2nd arg(val. stored in name prop.=admin);signed lets express know to use the secret key from cookie-parser to create signed cookie
+          req.session.user = 'admin';//saves to the session the username
           return next(); // authorized
       } else {
           const err = new Error('You are not authenticated!');
@@ -68,7 +79,7 @@ function auth(req, res, next) {
           return next(err);
       }
   } else {
-      if (req.signedCookies.user === 'admin') {
+      if (req.session.user === 'admin') {
           return next();
       } else {
           const err = new Error('You are not authenticated!');
