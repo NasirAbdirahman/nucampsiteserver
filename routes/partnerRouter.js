@@ -1,3 +1,4 @@
+//Router handles GET,PUT,POST,DELETE endpoints for paths that begin with /partner or route parameter for specific partnerId 
 const express = require('express');
 const Partner = require('../models/partner');
 const partnerRouter = express.Router();

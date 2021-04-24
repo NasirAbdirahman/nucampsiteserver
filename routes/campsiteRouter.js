@@ -1,4 +1,4 @@
-//Router handles GET,PUT,POST,DELETE endpoints for paths that begin with /campsites or route parameter for specific campsitesId & Comments
+//Router handles GET,PUT,POST,DELETE endpoints for paths that begin with /campsite or route parameter for specific campsiteId & Comments
 
 const express = require('express');
 const Campsite = require('../models/campsite');

@@ -1,3 +1,4 @@
+//Router handles GET,PUT,POST,DELETE endpoints for paths that begin with /promotion or route parameter for specific promotionId & Comments
 const express = require('express');
 const Promotion = require('../models/promotion');
 const promotionRouter = express.Router();

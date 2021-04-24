@@ -8,7 +8,10 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const session = require('express-session');
-const FileStore = require('session-file-store')(session);//Immediately calls the sesision
+const FileStore = require('session-file-store')(session);//Immediately calls the session
+
+const passport = require('passport');
+const authenticate = require('./authenticate');
 
 //Routers
 var indexRouter = require('./routes/index');
@@ -52,6 +55,11 @@ app.use(session({
   store: new FileStore()//creates new filestore as object,we can use to save our session info to servers harddisk, instead of just in running apps. memory
 }));
 
+//Only necessary if we using session-based authentication; middleware fn provided by passport to check if session exists for client
+//If so, then its loaded for the client as req.user
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -59,20 +67,14 @@ app.use('/users', usersRouter);
 //Users can access user router before they are challenged to authenticate themselves (So they can now create an account)
 //Authentication Added here-b/c this is first of middleware Fn that send things back to client
 function auth(req, res, next) {
-  console.log(req.session);
+  console.log(req.user);
 
-  if (!req.session.user) {
-      const err = new Error('You are not authenticated!');
+  if (!req.user) {
+      const err = new Error('You are not authenticated!');                    
       err.status = 401;
       return next(err);
   } else {
-      if (req.session.user === 'authenticated') {
-          return next();
-      } else {
-          const err = new Error('You are not authenticated!');
-          err.status = 401;
-          return next(err);
-      }
+      return next();
   }
 }
 
