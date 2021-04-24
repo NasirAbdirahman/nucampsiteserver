@@ -16,21 +16,36 @@ router.post('/signup', (req, res) => {
     User.register(//Adding new user to the USER model
         new User({username: req.body.username}),//New user created with name given by client
         req.body.password,//PW from client
-        err => {//Callback method with error that shows server issue
+        (err, user) => {//Callback method with error that shows server issue
             if (err) {
                 res.statusCode = 500;
                 res.setHeader('Content-Type', 'application/json');
                 res.json({err: err});//explains error
-            } else {//authenticates newly registered user
-                passport.authenticate('local')(req, res, () => {
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.json({success: true, status: 'Registration Successful!'});
+            } else {
+                if (req.body.firstname) {
+                    user.firstname = req.body.firstname;
+                }
+                if (req.body.lastname) {
+                    user.lastname = req.body.lastname;
+                }
+                user.save(err => {
+                    if (err) {
+                        res.statusCode = 500;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json({err: err});
+                        return;
+                    }
+                    passport.authenticate('local')(req, res, () => {//authenticates newly registered user
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json({success: true, status: 'Registration Successful!'});
+                    });
                 });
             }
         }
     );
 });
+
 
 //Endpoint allows user to log-in to site
 //Enables Passport authentication on this route, passport authenticate handles logging in the user(challenging etc.)
