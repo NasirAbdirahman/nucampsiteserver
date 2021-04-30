@@ -35,6 +35,18 @@ connect.then(() => console.log('Connected correctly to server'),
 //Creates a New express Application, under the name 'app'
 var app = express();
 
+// Secure traffic only
+//Routing method that catches all req to server, then redirects to https, if from http
+app.all('*', (req, res, next) => {// * = wildcard(cataches all)
+  if (req.secure) {//checking if it is https; secure automatically set to true by express
+    return next();
+  } else {//If not secure, redirect to https
+      console.log(`Redirecting to: https://${req.hostname}:${app.get('secPort')}${req.url}`);
+      res.redirect(301, `https://${req.hostname}:${app.get('secPort')}${req.url}`);//301 = permanent redirect
+  }
+});
+
+
 // view engine setup, Created Jade View Template Engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
