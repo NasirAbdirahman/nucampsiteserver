@@ -2,7 +2,7 @@
 const express = require('express');
 const authenticate = require('../authenticate');
 const multer = require('multer');
-const cors = require('cors');
+const cors = require('./cors');
 
 /* Extra Code could be left out & multer has default values */
 
