@@ -3,11 +3,12 @@ const express = require('express');
 const User = require('../models/user');
 const passport = require('passport');
 const authenticate = require('../authenticate');
+const cors = require('cors');
 
 const router = express.Router();
 
 /* GET Users listing. Only Admin can Access that*/
-router.get('/',authenticate.verifyUser,authenticate.verifyAdmin,(req, res, next) => {
+router.get('/', cors.corsWithOptions, authenticate.verifyUser,authenticate.verifyAdmin,(req, res, next) => {
     User.find()
     .then(users => {
         res.statusCode = 200;
@@ -19,7 +20,7 @@ router.get('/',authenticate.verifyUser,authenticate.verifyAdmin,(req, res, next)
 
 
 //Endpoint allows new user to register on our site
-router.post('/signup', (req, res) => {
+router.post('/signup', cors.corsWithOptions, (req, res) => {
     User.register(//Adding new user to the USER model
         new User({username: req.body.username}),//New user created with name given by client
         req.body.password,//PW from client
@@ -57,7 +58,7 @@ router.post('/signup', (req, res) => {
 //Endpoint allows user to log-in to site
 //Enables Passport authentication on this route, passport authenticate handles logging in the user(challenging etc.)
 //User is authenticated then issued a token
-router.post('/login', passport.authenticate('local'), (req, res) => {
+router.post('/login', cors.corsWithOptions, passport.authenticate('local'), (req, res) => {
     const token = authenticate.getToken({_id: req.user._id});
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
@@ -68,7 +69,7 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
 
 
 //Endpoint allows user to log-out of site
-router.get('/logout', (req, res, next) => {
+router.get('/logout', cors.corsWithOptions, (req, res, next) => {
     if (req.session) {//Checks first if session exists
         req.session.destroy();//Deletes the session file on server side
         res.clearCookie('session-id');//clears the cookie thats been stored on the client side
